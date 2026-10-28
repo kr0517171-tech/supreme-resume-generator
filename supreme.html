@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Document & Resume Wizard</title>
+    <!-- html2canvas Library for High Quality JPEG Downloads -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        /* Modern Bright Light Theme Variables */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+            --notepad-bg: #fdfdf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 24px;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .mode-selector {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px;
+            border-radius: 10px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .mode-selector button {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .mode-selector button.active {
+            background: white;
+            color: #6366f1;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        /* Sidebar & Colorful Friendly Bot UI */
+        .sidebar {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .avatar-container {
+            background: linear-gradient(180deg, #e0e7ff, #f3e8ff);
+            border-radius: 16px;
+            height: 240px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #c7d2fe;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .live-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #ef4444;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            animation: blink 1.5s infinite;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.4; }
+        }
+
+        /* Friendly Colorful Robot Face */
+        .robot-face {
+            width: 110px;
+            height: 100px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            border-radius: 28px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .robot-face::after {
+            content: '';
+            position: absolute;
+            top: -12px;
+            width: 6px;
+            height: 12px;
+            background: #3b82f6;
+            border-radius: 3px;
+        }
+
+        .robot-face::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            width: 12px;
+            height: 12px;
+            background: #f59e0b;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #f59e0b;
+        }
+
+        .eyes {
+            display: flex;
+            gap: 24px;
+        }
+
+        .eye {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+            animation: blinkEye 4s infinite;
+        }
+
+        .eye::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #0f172a;
+            border-radius: 50%;
+            top: 5px;
+            left: 5px;
+        }
+
+        @keyframes blinkEye {
+            0%, 95%, 100% { transform: scaleY(1); }
+            97% { transform: scaleY(0.1); }
+        }
+
+        .mouth {
+            width: 44px;
+            height: 8px;
+            background: #0f172a;
+            border-radius: 20px;
+            transition: all 0.1s ease;
+        }
+
+        /* Talking Animation States */
+        .robot-face.talking {
+            animation: bob 0.4s infinite alternate ease-in-out;
+        }
+        .robot-face.talking .mouth {
+            animation: speak 0.15s infinite alternate ease-in-out;
+        }
+
+        @keyframes bob {
+            to { transform: translateY(-8px); }
+        }
+        @keyframes speak {
+            to { height: 22px; width: 22px; border-radius: 50%; background: #ffffff; }
+        }
+
+        .controls-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text);
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .voice-input-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Layout Structure */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .details-form {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .details-form div {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .notepad-container {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #notepad {
+            height: 380px;
+            resize: none;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            background: var(--notepad-bg);
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.02);
+        }
+
+        /* Vibrant Colorful Buttons Styles */
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        button.btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .btn-primary { background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .btn-success:hover { transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3); }
+
+        .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .btn-amber:hover { transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3); }
+
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3); }
+
+        .btn-mic {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid var(--border);
+            padding: 10px;
+        }
+        .btn-mic.listening {
+            background: #ef4444;
+            color: white;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Print Ready Preview Page Layout */
+        #print-preview-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .preview-content-box {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 30mm;
+            border-radius: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin: 0 auto;
+        }
+
+        .preview-actions {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1010;
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #print-preview-modal, #print-preview-modal * { visibility: visible; }
+            #print-preview-modal { position: absolute; top: 0; left: 0; background: white; padding: 0; }
+            .preview-content-box { box-shadow: none; margin: 0; padding: 0; }
+            .preview-actions { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>AI Document & Resume Wizard</h1>
+        <div class="mode-selector">
+            <button id="btn-app-mode" class="active" onclick="setMode('application')">Application Mode</button>
+            <button id="btn-resume-mode" onclick="setMode('resume')">Resume Mode</button>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: 24px;">
+        <div class="sidebar">
+            <div class="avatar-container">
+                <div class="live-tag">LIVE ASSISTANT</div>
+                <div class="robot-face" id="robotFace">
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="mouth"></div>
+                </div>
+            </div>
+
+            <div class="controls-row">
+                <label for="voiceGender">Voice Tone:</label>
+                <select id="voiceGender">
+                    <option value="female">Female Voice (किरण)</option>
+                    <option value="male">Male Voice (आकाश)</option>
+                </select>
+            </div>
+
+            <div class="voice-input-container">
+                <label>Ask Bot (Type or Use Mic):</label>
+                <div style="display: flex; gap: 8px;">
+                    <textarea id="aiInput" rows="3" placeholder="जैसे: '2 दिन की छुट्टी की एप्लीकेशन लिखो'..." style="flex-grow: 1;"></textarea>
+                    <button class="btn btn-mic" id="micBtn" onclick="toggleMic()" title="बोलकर निर्देश दें">🎤</button>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="processAIRequest()">⚡ Generate Document</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="details-form">
+                <div>
+                    <label>Full Name</label>
+                    <input type="text" id="docName" placeholder="Rahul Kumar">
+                </div>
+                <div>
+                    <label>Email Address</label>
+                    <input type="email" id="docEmail" placeholder="rahul@example.com">
+                </div>
+                <div>
+                    <label>Contact Number</label>
+                    <input type="text" id="docContact" placeholder="+91 98765 43210">
+                </div>
+            </div>
+
+            <div class="notepad-container">
+                <h3 id="notepad-title" style="font-size: 16px; color: var(--text-secondary);">Interactive Notepad (Application)</h3>
+                <textarea id="notepad" placeholder="आपका टेक्स्ट यहाँ लाइव टाइप होना शुरू होगा..."></textarea>
+
+                <div class="action-bar">
+                    <button class="btn btn-success" onclick="openPreview()">👀 Generate Ready Page</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="print-preview-modal">
+        <div class="preview-actions">
+            <button class="btn btn-success" onclick="window.print()">🖨️ Direct Print</button>
+            <button class="btn btn-amber" onclick="downloadAsJPEG()">🖼️ Download JPEG</button>
+            <button class="btn btn-danger" onclick="closePreview()">❌ Close Window</button>
+        </div>
+        <div class="preview-content-box" id="printable-area"></div>
+    </div>
+
+<script>
+    let currentMode = 'application';
+    let recognition;
+    let isListening = false;
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btn-app-mode').classList.toggle('active', mode === 'application');
+        document.getElementById('btn-resume-mode').classList.toggle('active', mode === 'resume');
+        document.getElementById('notepad-title').innerText = mode === 'application' ? 'Interactive Notepad (Application)' : 'Interactive Notepad (Resume)';
+        document.getElementById('notepad').value = '';
+    }
+
+    // Speech Recognition Setup (Speech-to-Text)
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'hi-IN'; 
+        recognition.interimResults = false;
+
+        recognition.onstart = function() {
+            isListening = true;
+            document.getElementById('micBtn').classList.add('listening');
+            document.getElementById('micBtn').innerText = '🛑';
+        };
+
+        recognition.onerror = function(event) {
+            console.error(event.error);
+            stopMic();
+        };
+
+        recognition.onend = function() {
+            stopMic();
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('aiInput').value = transcript;
+            processAIRequest(); 
+        };
+    } else {
+        document.getElementById('micBtn').style.display = 'none';
+        console.log("Speech recognition not supported in this browser.");
+    }
+
+    function toggleMic() {
+        if (!recognition) return;
+        if (isListening) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    }
+
+    function stopMic() {
+        isListening = false;
+        document.getElementById('micBtn').classList.remove('listening');
+        document.getElementById('micBtn').innerText = '🎤';
+    }
+
+    // Text-to-Speech Implementation (Chatbot voice speaking out)
+    function botSpeak(textToSay) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); 
+            
+            let cleanText = textToSay.replace(/[=-_]/g, ' ').substring(0, 150) + "... आपका दस्तावेज़ तैयार किया जा रहा है।";
+            
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            const gender = document.getElementById('voiceGender').value;
+            
+            const voices = window.speechSynthesis.getVoices();
+            utterance.lang = 'hi-IN';
+
+            if (gender === 'male') {
+                const maleVoice = voices.find(v => v.lang.includes('hi') && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('male')));
+                if (maleVoice) utterance.voice = maleVoice;
+                utterance.pitch = 0.9;
+            } else {
+                const femaleVoice = voices.find(v => v.lang.includes('hi') && (v.name.toLowerCase().includes('natural') || v.name.toLowerCase().includes('female')));
+                if (femaleVoice) utterance.voice = femaleVoice;
+                utterance.pitch = 1.1;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function streamText(targetText) {
+        const robotFace = document.getElementById('robotFace');
+        const notepad = document.getElementById('notepad');
+        notepad.value = ''; 
+        robotFace.classList.add('talking'); 
+
+        botSpeak(targetText);
+
+        let index = 0;
+        clearInterval(window.streamInterval);
+
+        window.streamInterval = setInterval(() => {
+            if (index < targetText.length) {
+                notepad.value += targetText.charAt(index);
+                index++;
+                notepad.scrollTop = notepad.scrollHeight; 
+            } else {
+                clearInterval(window.streamInterval);
+                robotFace.classList.remove('talking'); 
+            }
+        }, 15); 
+    }
+
+    function processAIRequest() {
+        const userInput = document.getElementById('aiInput').value.trim();
+        const name = document.getElementById('docName').value || "[Your Name]";
+        const email = document.getElementById('docEmail').value || "[Your Email]";
+        const contact = document.getElementById('docContact').value || "[Your Contact]";
+
+        if (!userInput) {
+            alert("कृपया चैटबॉक्स में अपनी आवश्यकता दर्ज करें या माइक दबाकर बोलें!");
+            return;
+        }
+
+        let outputContent = "";
+
+        if (currentMode === 'resume') {
+            outputContent = `======================================================================
+                                    RESUME
+======================================================================
+
+CONTACT INFORMATION
+----------------------------------------------------------------------
+Name: ${name}
+Email: ${email}
+Phone: ${contact}
+
+CAREER OBJECTIVE
+----------------------------------------------------------------------
+To accept a challenging role where I can utilize my core expertise,
+enhance my skills, and add strategic value to the organization.
+
+KEY SKILLS & PROJECTS
+----------------------------------------------------------------------
+Based on your input: "${userInput}"
+
+EDUCATION & CREDENTIALS
+----------------------------------------------------------------------
+- Professional course details and academic qualification matching the criteria.
+
+DECLARATION
+----------------------------------------------------------------------
+I hereby declare that all the information stated above is authentic and correct.
+
+Date: ${new Date().toLocaleDateString('en-IN')}
+Place: India                                Signature: ____________________`;
+        } else {
+            outputContent = `To,
+The Concerned Authority,
+[Company/Institution Name Details]
+
+Subject: Application Regarding "${userInput}"
+
+Respected Sir/Madam,
+
+I am writing this application formally to bring to your kind notice regarding ${userInput}. 
+
+I request you to kindly review the matter at your earliest convenience and grant the necessary approvals. I have specified my official contact details below for any correspondence.
+
+Thanking You in anticipation.
+
+Yours Sincerely,
+Name: ${name}
+Email: ${email}
+Contact Number: ${contact}
+Date: ${new Date().toLocaleDateString('en-IN')}`;
+        }
+
+        streamText(outputContent);
+    }
+
+    function openPreview() {
+        const notepadContent = document.getElementById('notepad').value;
+        if (!notepadContent.trim()) {
+            alert("पहले नोटपैड में कुछ टेक्स्ट लिखें या AI से जनरेट करवाएं!");
+            return;
+        }
+
+        document.getElementById('printable-area').innerHTML = `<div style="font-family: 'Arial', sans-serif; font-size: 16px; color: #000; line-height: 1.8; white-space: pre-wrap;">${notepadContent}</div>`;
+        document.getElementById('print-preview-modal').style.display = 'flex';
+    }
+
+    function closePreview() {
+        document.getElementById('print-preview-modal').style.display = 'none';
+    }
+
+    function downloadAsJPEG() {
+        const element = document.getElementById('printable-area');
+        html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = currentMode === 'resume' ? 'AI_Professional_Resume.jpg' : 'AI_Application_Letter.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.click();
+        });
+    }
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = function() {
+            window.speechSynthesis.getVoices();
+        };
+    }
+</script>
+</body>
+</html>
